@@ -1,19 +1,40 @@
 steps:
+  # Build the Docker image
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['build', '-t', 'us-west1-docker.pkg.dev/holomua-doe-demo/demo-app-docker-repo/nginx-hello-world', '.']
+    args: ['build', '-t', '${_IMAGE_NAME}', '.']
 
+  # Push the Docker image to Artifact Registry
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['push', 'us-west1-docker.pkg.dev/holomua-doe-demo/demo-app-docker-repo/nginx-hello-world']
+    args: ['push', '${_IMAGE_NAME}']
 
+  # Dummy step to simulate SAST, image build, and image scan using alpine image
+  - name: 'alpine'
+    entrypoint: 'sh'
+    args:
+      - '-c'
+      - |
+        echo "Running SAST and Image Scan..."
+        echo "IMAGE_NAME: ${_IMAGE_NAME}"
+        echo "SAST_TOOL: ${_SAST_TOOL}"
+        echo "IMAGE_SCAN_TOOL: ${_IMAGE_SCAN_TOOL}"
+
+  # Deploy the application to Cloud Run
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
     entrypoint: 'gcloud'
     args: [
       'run', 'deploy', 'nginx-hello-world',
-      '--image', 'us-west1-docker.pkg.dev/holomua-doe-demo/demo-app-docker-repo/nginx-hello-world',
+      '--image', '${_IMAGE_NAME}',
       '--region', 'us-west1',
       '--platform', 'managed',
       '--allow-unauthenticated'
     ]
 
+# Define the variables used in the build and dummy steps
+substitutions:
+  _IMAGE_NAME: "us-west1-docker.pkg.dev/holomua-doe-demo/demo-app-docker-repo/nginx-hello-world"
+  _SAST_TOOL: "dummy-sast-tool"
+  _IMAGE_SCAN_TOOL: "dummy-image-scan-tool"
+
 options:
   logging: CLOUD_LOGGING_ONLY
+
