@@ -1,0 +1,26 @@
+name: Build Container Image
+run-name: "Build & Scan Hello World Images"
+permissions:
+  contents: read
+  checks: write
+  packages: write
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - 'main'
+    tags: [ '*' ]
+  pull_request:
+    branches:
+      - main
+jobs:
+  image_delivery:
+    runs-on: ubuntu-latest
+    name: Build And Scan Image
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Portage Build and Scan
+        uses: easy-up/portage-cd-actions/image-build-scan-publish/docker@main
+        with:
+          tag: "ttl.sh/5b34f804-1b04-4e5d-b045-c5ff3de2e367:1h"
