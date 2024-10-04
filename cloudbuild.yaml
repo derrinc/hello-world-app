@@ -1,22 +1,20 @@
 steps:
   # Build the Docker image
-  - name: 'gcr.io/cloud-builders/docker'
-    args: ['build', '-t', '${_IMAGE_NAME}', '.']
+#  - name: 'gcr.io/cloud-builders/docker'
+#    args: ['build', '-t', '${_IMAGE_NAME}', '.']
+
+  # Portage to build our image
+  - name: 'ghcr.io/easy-up/portage:v0.0.1-rc.19'
+    entrypoint: 'sh'
+    env:
+     - "PORTAGE_IMAGE_PUBLISH_ENABLED=0"
+    args: [
+      run all --tag "${_IMAGE_NAME}"
+    ]
 
   # Push the Docker image to Artifact Registry
   - name: 'gcr.io/cloud-builders/docker'
     args: ['push', '${_IMAGE_NAME}']
-
-  # Dummy step to simulate SAST, image build, and image scan using alpine image
-  - name: 'alpine'
-    entrypoint: 'sh'
-    args:
-      - '-c'
-      - |
-        echo "Running SAST and Image Scan..."
-        echo "IMAGE_NAME: ${_IMAGE_NAME}"
-        echo "SAST_TOOL: ${_SAST_TOOL}"
-        echo "IMAGE_SCAN_TOOL: ${_IMAGE_SCAN_TOOL}"
 
   # Deploy the application to Cloud Run
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
