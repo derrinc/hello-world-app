@@ -9,7 +9,7 @@ steps:
     env:
      - "PORTAGE_IMAGE_PUBLISH_ENABLED=0"
     args: [
-      run all --tag "${_IMAGE_NAME}"
+      'run', 'all', '--tag', '${_IMAGE_NAME}'
     ]
 
   # Push the Docker image to Artifact Registry
